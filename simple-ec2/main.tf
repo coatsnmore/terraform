@@ -1,9 +1,10 @@
-data "aws_ami" "ubuntu" {
+data "aws_ami" "linux" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["*amzn2-ami-hvm-*-x86_64-gp2"]
+
   }
 
   filter {
@@ -11,7 +12,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["amazon"]
 }
 
 variable "awsprops" {
@@ -27,15 +28,6 @@ variable "awsprops" {
     secgroupname = "coatsnmore-sg"
   }
 }
-
-# resource "aws_instance" "web" {
-#   ami           = data.aws_ami.ubuntu.id
-#   instance_type = "t3.micro"
-
-#   tags = {
-#     Name = "HelloWorld"
-#   }
-# }
 
 provider "aws" {
   region = lookup(var.awsprops, "region")
@@ -75,7 +67,7 @@ resource "aws_security_group" "project-iac-sg" {
 }
 
 resource "aws_instance" "project-iac" {
-  ami           = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.linux.id
   instance_type = lookup(var.awsprops, "itype")
   #   subnet_id                   = lookup(var.awsprops, "subnet") #FFXsubnet2
   associate_public_ip_address = lookup(var.awsprops, "publicip")
@@ -88,7 +80,7 @@ resource "aws_instance" "project-iac" {
   root_block_device {
     delete_on_termination = true
     # iops                  = 150
-    volume_size = 50
+    volume_size = 100
     volume_type = "gp2"
   }
   tags = {
